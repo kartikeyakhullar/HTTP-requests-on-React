@@ -1,63 +1,38 @@
 import React, { Component } from 'react';
+import Posts from "./Posts/Posts"
+import NewPost from "./NewPost/NewPost"
 
-import Post from '../../components/Post/Post';
-import FullPost from '../../components/FullPost/FullPost';
-import NewPost from '../../components/NewPost/NewPost';
 import './Blog.css';
-import axios from "axios";
+import {Route,NavLink,Switch,Redirect} from "react-router-dom";
+// import FullPost from "./FullPost/FullPost"
 
 class Blog extends Component {
 
     state = {
-        posts : [],
-        selectedPostId : null,
-        error : false
-    }
-
-    componentDidMount(){
-        axios.get('/posts').then((response)=>{
-            const posts = response.data.slice(0,4);
-            const updatedPosts = posts.map((post)=>{
-                return {
-                    ...post,
-                    author : 'Kartikeya'
-                }
-            })
-            this.setState({posts:updatedPosts});
-            console.log(response)  
-        }).catch((err)=>{
-            this.setState({error:true});
-        });
-    }
-
-
-    postSelectedHandler=(id)=>{
-        this.setState({selectedPostId:id})
-
+        auth : true
     }
 
 
     render () {
-        let posts = <p style={{textAlign:'center'}}>Something went wrong!!</p>
-        if(!this.state.error){
-            posts = this.state.posts.map((post)=>{
-                return <Post 
-                key={post.id} title={post.title} 
-                author={post.author} 
-                clicked={()=>this.postSelectedHandler(post.id)}/>
-            });
-        }
         return (
-            <div>
-                <section className="Posts">
-                    {posts}
-                </section>
-                <section>
-                    <FullPost id={this.state.selectedPostId}/>
-                </section>
-                <section>
-                    <NewPost />
-                </section>
+            <div className="Blog">
+                <header>
+                    <nav>
+                        <ul>
+                            <li><NavLink to="/posts/" exact> Posts </NavLink></li>
+                            <li><NavLink to="/new-post"> New-Post </NavLink></li>
+                        </ul>
+                    </nav>
+                </header>
+                <Switch>
+                    {this.state.auth ? <Route path="/new-post" component = {NewPost} /> : null}
+                    <Route path="/posts" component = {Posts} />
+                    <Redirect from="/" to="/posts" />
+                    {/* To handle error 404 routes */}
+                    {/* <Route render={()=>{<h1>Page not found!!</h1>}} /> */}
+                    {/* <Route path="/:id" exact component = {FullPost} /> */}
+                </Switch>
+                
             </div>
         );
     }
